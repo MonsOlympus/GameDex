@@ -37,6 +37,7 @@ simulated event PostBeginPlay()
 					GetPawnProps(Pawn);
 
 				SetTimer(0.01, false, 'SetPropsTimer');
+				SetTimer(10,true, 'CheckOwner');
 //			}			else//				Destroy();
 //		}
 	}
@@ -49,6 +50,12 @@ simulated event PostBeginPlay()
 function SetPropsTimer()
 {
 	SetPawnProps(Pawn);
+}
+
+function CheckOwner()
+{
+	if(UTPawn(Owner) == None)
+		Destroy();
 }
 
 /*

@@ -2,7 +2,7 @@
 //	Class: UT_MDB_DS_Float
 //	Creation date: 29/03/2009 00:00
 //	Ported date: 10/09/2009 01:48
-//	Last Updated: 10/09/2009 03:09
+//	Last Updated: 06/03/2010 00:33
 //	Contributors: 00zX
 //---------------------------------------------------
 //	Attribution-Noncommercial-Share Alike 3.0 Unported
@@ -61,15 +61,24 @@ simulated function Clear()
 	DSet=cSet;
 }
 
+// Append: Update Assigned with new array value
 final function Update(float A, optional name tag='Default')
 {
 	DSet.Data.Additem(A);
 
-	SetData(GetData('Sum')+A, 'Sum');
-	SetData(GetData('Product')*A, 'Product');
+	if(!SetData(GetData('Sum') + A, 'Sum'))
+		`logd("Append: Failed @ Sum!",,tag);
 
-	if(GetData('Minimum')>A) SetData(A, 'Minimum');
-	if(GetData('Maximum')<A) SetData(A, 'Maximum');
+	if(!SetData(GetData('Product') * A, 'Product'))
+		`logd("Append: Failed @ Product!",,tag);
+
+	if(GetData('Minimum') > A)
+		if(!SetData(A, 'Minimum'))
+			`logd("Append: Failed @ Minimum!",,tag);
+
+	if(GetData('Maximum') < A)
+		if(!SetData(A, 'Maximum'))
+			`logd("Append: Failed @ Maximum!",,tag);
 }
 
 simulated function UpdateData(float A, optional name tag='Default')

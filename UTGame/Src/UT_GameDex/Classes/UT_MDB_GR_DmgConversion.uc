@@ -1,7 +1,7 @@
 //===================================================
 //	Class: UT_MDB_GR_DmgConversion
 //	Creation date: 20/08/2009 14:46
-//	Last Updated: 17/11/2009 09:34
+//	Last Updated: 06/03/2010 19:15
 //	Contributors: 00zX
 //---------------------------------------------------
 //	Attribution-Noncommercial-Share Alike 3.0 Unported
@@ -16,6 +16,11 @@ class UT_MDB_GR_DmgConversion extends UT_MDB_GameRules
 	config(Newtators);
 
 `include(MOD.uci)
+
+var globalconfig bool	bUseSuperHealth;
+var globalconfig bool	bUseForVehicles;	//Infantry Vs Vehicle || Vehicle Vs Vehicle Damage!
+var globalconfig bool	bUseForKnights;
+var globalconfig bool	bUseForRooks;		//Castles cant have vampire :S
 
 /** Conversion of damage to armour, varies depending on armour type.
 	Armour is based on the amount of damage it blocks. */
@@ -71,9 +76,10 @@ function int DamageTaken(UT_GR_Info.EnemyInfo Enemy, optional pawn Injured)
 	Enemy.ModifiedDamage=bUsePercentageReward ? int(fRandPercent(Enemy.Damage, 0.25)) : Enemy.Damage;
 
 	//Rule_Variation: Falloff based on Players Distance to the enemy.
-	if(bUseFalloff){
-		FalloffPercent=1-(DistToEnemy(Enemy, Injured)-Falloff.Min)/Falloff.Max-Falloff.Min;
-		ConversionRatio=ConversionRatio*FalloffPercent;
+	if(bUseFalloff)
+	{
+		FalloffPercent = ((1 - (DistToEnemy(Enemy, Injured) - Falloff.Min)) / (Falloff.Max - Falloff.Min));
+		ConversionRatio = ConversionRatio * FalloffPercent;
 		`Logd("Enemy.Damage = "$Enemy.Damage$"; FalloffPercent = "$FalloffPercent$";  ConversionRatio = "$ConversionRatio,, 'DmgConvert');
 	}
 
@@ -140,6 +146,6 @@ defaultproperties
 	bUseRewardDelay=False
 	RewardDelay=0.4
 
-	bUseFalloff=True
+	bUseFalloff=False
 	Falloff=(Min=200, Max=1300)
 }

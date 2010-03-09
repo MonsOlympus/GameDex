@@ -5,7 +5,8 @@
 //---------------------------------------------------
 class UT_MDB_rWeaponFactory extends UT_MDB_FactoryReplacer;
 
-defaultproperties{
+defaultproperties
+{
 	//Find PAckage for:  ReplacedWithFactoryPath="Mutatoes.UTItemRandomFactory"
 	ReplacementFactories(0)=(FactoryGroup='FT_Weapon',ReplacedFactory="UTWeaponPickupFactory", ReplacedWithFactory="UTItemRandomFactory", ReplacedWithFactoryPath="UT_GameDex.UTItemRandomFactory")
 }

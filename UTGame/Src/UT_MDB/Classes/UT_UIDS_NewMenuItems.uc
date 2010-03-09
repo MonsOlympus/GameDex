@@ -25,7 +25,7 @@ defaultproperties
    ElementProviderTypes(10)=
    ElementProviderTypes(11)= */
 //   ElementProviderTypes(12)=(ProviderTag="DropDownVehicles",ProviderClassName="Newtators.UTUIDataProvider_Vehicles")
-   Tag="Vehicles"
-   Name="Default__UTUIDataStore_NewMenuItems"
-   ObjectArchetype=UIDataStore_GameResource'UTGame.Default__UTUIDataStore_MenuItems'
+	Tag="Vehicles"
+	Name="Default__UTUIDataStore_NewMenuItems"
+	ObjectArchetype=UIDataStore_GameResource'UTGame.Default__UTUIDataStore_MenuItems'
 }

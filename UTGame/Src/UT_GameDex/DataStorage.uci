@@ -1,0 +1,18 @@
+//===================================================
+//	Header: DataStorage.uci
+//	Creation date: 06/03/2010 13:32
+//	Last updated: 06/03/2010 13:32
+//	Contributors: 00zX
+//---------------------------------------------------
+//	Attribution-Noncommercial-Share Alike 3.0 Unported
+//	http://creativecommons.org/licenses/by-nc-sa/3.0/
+//===================================================
+
+`define Contains(tag, DataType) UT_MDB_{`DataType}Storage.Contains(`tag)
+
+`define Add(tag, DataType, Data) UT_MDB_{`DataType}Storage.Add(`Data, `tag)
+`define Remove(tag, DataType, Data) UT_MDB_{`DataType}Storage.Add(`Data, `tag)
+
+`define Clear(tag, DataType) UT_MDB_{`DataType}Storage.Clear(`tag)
+
+`define Update(tag, DataType, Data) UT_MDB_{`DataType}Storage.Update(`Data, `tag)

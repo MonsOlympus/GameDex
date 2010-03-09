@@ -1,14 +1,14 @@
 //===================================================
 //	Class: UT_MDB_GR_UTTwo
 //	Creation date: 27/11/2007 15:52
-//	Last updated: 14/09/2009 17:13
+//	Last updated: 07/03/2010 01:16
 //	Contributors: 00zX
 //===================================================
 class UT_MDB_GR_UTTwo extends UT_MDB_GR_Pawn;
 
-simulated function ModifyPawn(Pawn P, optional int AbilityLevel)
+simulated function ModifyPawn(Pawn P, optional bool bRemoveBonus=false, optional int AbilityLevel)
 {
-	Super.ModifyPawn(P, AbilityLevel);
+	Super.ModifyPawn(P, bRemoveBonus, AbilityLevel);
 
 	UTPawn(P).bCanDoubleJump=True;			//UT3: True
 	UTPawn(P).MaxMultiJump = 1;			//UT3: 1
@@ -20,7 +20,7 @@ simulated function ModifyPawn(Pawn P, optional int AbilityLevel)
 //	UTPawn(P).WaterSpeed=200.0;			//UT3: 220.0
 	UTPawn(P).DodgeSpeed=660.0;			//UT3: 600.0
 	UTPawn(P).DodgeSpeedZ=210.0;			//UT3: 295.0	//UT: 160?
-	UTPawn(P).AirControl=0.35;				//UT3: 0.45?
+	UTPawn(P).AirControl=0.35;				//UT3: 0.45? //FIXME: NEEDS TO BE REPLICATED!
 
 	if(P.IsA('UTOnePawn'))
 		UTOnePawn(P).bCanWalldodge=True;	//UT3: True

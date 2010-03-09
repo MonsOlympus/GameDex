@@ -1,7 +1,7 @@
 //====================================================
 ///	Class: UT_MDB_GameRules
 ///	Creation date: 15/01/2009 07:02
-///	Last Updated: 20/08/2009 14:51
+///	Last Updated: 06/03/2010 19:15
 ///	Contributors: 00zX
 //----------------------------------------------------
 ///	Attribution-Noncommercial-Share Alike 3.0 Unported
@@ -13,18 +13,15 @@ class UT_MDB_GameRules extends UT_MDB
 var GameRules			MasterGR;
 var UT_MDB_GameRules	NextGR;				//GameRulesList!
 
-var globalconfig bool	bUseSuperHealth;
-var globalconfig bool	bUseForVehicles;	//Infantry Vs Vehicle || Vehicle Vs Vehicle Damage!
-var globalconfig bool	bUseForKnights;
-var globalconfig bool	bUseForRooks;		//Castles cant have vampire :S
-
 ////
 //TIMERS - Redundant Function Calls!~
-final function SetTimer(float inRate, optional bool inbLoop, optional Name inTimerFunc='Timer'){
+final function SetTimer(float inRate, optional bool inbLoop, optional Name inTimerFunc='Timer')
+{
 	MasterGR.SetTimer(inRate, inbLoop, inTimerFunc, self);
 }
 
-final function ClearTimer(optional Name inTimerFunc='Timer'){
+final function ClearTimer(optional Name inTimerFunc='Timer')
+{
 	MasterGR.ClearTimer(inTimerFunc, self);
 }
 
@@ -44,9 +41,9 @@ function SetNextGR()
 	NextGR = UT_MDB_GameRules(UT_MDB_GameExp(UT_GR_Info(MasterGR).GameExp).GRList.GetNext(self));
 }
 
-function bool OverridePickupQuery(UTPawn Other, class<Inventory> ItemClass, Actor Pickup)
+function bool PickupQuery(UTPawn Other, class<Inventory> ItemClass, Actor Pickup)
 {
-	return (NextGR != none) ? NextGR.OverridePickupQuery(Other, ItemClass, Pickup) : false;
+	return (NextGR != none) ? NextGR.PickupQuery(Other, ItemClass, Pickup) : false;
 }
 
 function int DamageTaken(UT_GR_Info.EnemyInfo Enemy, optional pawn injured)
@@ -73,31 +70,27 @@ function int SelfDamage(UT_GR_Info.EnemyInfo Enemy)
 //*when a player picks up an item		|Last Duration of Item
 //*when a player first spawns 			|Last Until Death
 //										|Last Entire Match
-simulated function ModifyPawn(Pawn P, optional int AbilityLevel)
+simulated function ModifyPawn(Pawn P, optional bool bRemoveBonus=false, optional int AbilityLevel)
 {
 	if(NextGR != none)
-		NextGR.ModifyPawn(P,AbilityLevel);
+		NextGR.ModifyPawn(P, bRemoveBonus, AbilityLevel);
 }
 
-simulated function ModifyRook(UTHeroPawn R, optional int AbilityLevel)
+simulated function ModifyRook(UTHeroPawn R, optional bool bRemoveBonus=false, optional int AbilityLevel)
 {
 	if(NextGR != none)
-		NextGR.ModifyRook(R,AbilityLevel);
+		NextGR.ModifyRook(R, bRemoveBonus, AbilityLevel);
 }
 
-simulated function ModifyController(Controller PC, optional int AbilityLevel)
+simulated function ModifyController(Controller PC, optional bool bRemoveBonus=false, optional int AbilityLevel)
 {
 	if(NextGR != none)
-		NextGR.ModifyController(PC,AbilityLevel);
+		NextGR.ModifyController(PC, bRemoveBonus, AbilityLevel);
 }
 
 //TODO: HOOKS TO CHECK REPLACE SPECIFIC FOR WEAPONS (MODIFIER)
-static simulated function ModifyWeapon(Weapon W, optional int AbilityLevel);
-static simulated function UnModifyWeapon(Weapon W, optional int AbilityLevel);
-
-//TODO: HOOKS TO CHECK REPLACE SPECIFIC FOR WEAPONS (MODIFIER)
-static simulated function ModifyVehicle(Vehicle V, optional int AbilityLevel);
-static simulated function UnModifyVehicle(Vehicle V, optional int AbilityLevel);
+static simulated function ModifyWeapon(Weapon W, optional bool bRemoveBonus=false, optional int AbilityLevel);
+static simulated function ModifyVehicle(Vehicle V, optional bool bRemoveBonus=false, optional int AbilityLevel);
 
 static function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKiller, optional int AbilityLevel);
 
@@ -111,3 +104,10 @@ static function ScoreKill(Controller Killer, Controller Killed, bool bOwnedByKil
 	else
 		return 0;
 }*/
+
+////
+//Replacement functions
+function bool CheckReplacement(Actor Other)
+{
+	return true;
+}

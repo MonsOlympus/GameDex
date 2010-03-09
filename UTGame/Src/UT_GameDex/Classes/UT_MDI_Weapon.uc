@@ -26,7 +26,7 @@ reliable client function SetWeapProps(UTWeapon W);
 event PostBeginPlay()
 {
 //	local int i;
-	`logd("Owner:"$Owner,,'MDI_Weapon');
+//	`logd("Owner:"$Owner,,'MDI_Weapon');
 
 	if(UTWeapon(Owner) == None)/* || cUseforWeaps.length <= 0)*/
 		Destroy();
@@ -39,6 +39,7 @@ event PostBeginPlay()
 					GetWeapProps(UTWeapon(Owner));
 
 				SetTimer(0.01, false, 'SetPropsTimer');
+				SetTimer(10,true, 'CheckOwner');
 /*			}else
 				Destroy();
 		}*/
@@ -47,6 +48,15 @@ event PostBeginPlay()
 }
 
 function SetPropsTimer(){	SetWeapProps(UTWeapon(Owner));}
+
+function CheckOwner()
+{
+	if(UTWeapon(Owner) == None)
+	{
+//		`logd("MDI: Info: "$self$".Destroy();",,'GameExp');
+		Destroy();
+	}
+}
 
 defaultproperties
 {

@@ -38,6 +38,11 @@ Simulated Function Tick(float dt)
 //			P.SlopeBoostFriction = -0.800000;	//-0.4,0.2
 		}
 	}
+	else
+	{
+		disable('tick');
+		destroy();
+	}
 }
 
 defaultproperties

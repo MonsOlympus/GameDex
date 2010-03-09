@@ -1,7 +1,7 @@
 //===================================================
 //	Class: UT_MDB_GameExp				//%GAMEEXPANSIONCLASS%   (ClassName)
 //	Creation date: 06/12/2007 08:10	//%CREATIONDATE% (Date)
-//	Last updated: 12/09/2009 03:52		//%UPDATEDDATE%  (Date)
+//	Last updated: 05/03/2010 23:52		//%UPDATEDDATE%  (Date)
 //	Contributors: 00zX					//%CONTRIBUTORS% (String)
 //---------------------------------------------------
 //SuperClass for all Game Expansion Mutators
@@ -9,7 +9,7 @@
 //be reused alot through these.
 //
 //TODO: Expanded Tag Support -
-//	Can be used to auto assign groups based on what adjustments are made. (
+//	Can be used to auto assign groups based on what adjustments are made.
 //---------------------------------------------------
 //	Attribution-Noncommercial-Share Alike 3.0 Unported
 //	http://creativecommons.org/licenses/by-nc-sa/3.0/
@@ -412,6 +412,7 @@ function bool CheckReplacement(Actor Other)
 {
 	local UTPlayerController UTPlayer;
 //	local PickupFactory PickupReplacer;
+	local UT_MDI AttachedInfo;
 	local int idx,i;
 
 	UTPlayer = UTPlayerController(Controller(other));
@@ -425,8 +426,8 @@ function bool CheckReplacement(Actor Other)
 		idx=InfoAttachments.find('AttachedToActor', Other.class.name);
 //		`logd("Other.name: "$Other.name$"; Other.Class.Name: "$Other.class.name,,'GameExp');
 		if(idx != Index_None){
-			Spawn(InfoAttachments[idx].AttachedInfo, Other);
-			`logd("MDI: Info: "$InfoAttachments[idx].AttachedInfo$" AttachedTo: "$InfoAttachments[idx].AttachedToActor$"."$Other,,'GameExp');
+			AttachedInfo = Spawn(InfoAttachments[idx].AttachedInfo, Other);
+			`logd("MDI: Info: "$AttachedInfo.name$" AttachedTo: "$InfoAttachments[idx].AttachedToActor$"."$Other,,'GameExp');
 		}
 
 		//Slower for all Subclasses
@@ -438,8 +439,8 @@ function bool CheckReplacement(Actor Other)
 		i=InfoAttachments.find('bSpawnForSubClasses', true);
 		if(i != Index_None)
 			if(Other.IsA(InfoAttachments[i].AttachedToActor)){
-				Spawn(InfoAttachments[i].AttachedInfo, Other);
-				`logd("MDI: Info: "$InfoAttachments[i].AttachedInfo$" AttachedTo: "$InfoAttachments[i].AttachedToActor$"."$Other,,'GameExp');
+				AttachedInfo = Spawn(InfoAttachments[i].AttachedInfo, Other);
+				`logd("MDI: Info: "$AttachedInfo.name$" AttachedTo: "$InfoAttachments[i].AttachedToActor$"."$Other,,'GameExp');
 			}
 	}
 
@@ -462,6 +463,18 @@ function bool CheckReplacement(Actor Other)
 			PickupFactory(other).InitializePickup();
 		}
 	}*/
+
+	if(GRList != none)
+	{
+		if(!GRList.isEmpty())
+		{
+			if(fGR == none)
+				fGR = UT_MDB_GameRules(GRList.GetFirst());
+
+			return fGR.CheckReplacement(Other);
+		}
+	}
+
 	return true;
 }
 
@@ -563,6 +576,7 @@ function ModifyPawn(UTPawn P)
 	`log("Vehicle: "$V);
 }*/
 
+// NOTE: Only modifys the vehicle once a player enters it or on spawn?
 function ModifyVehicle(UTVehicle V)
 {
 //	local UT_MDB_GameRules tGR;
@@ -575,8 +589,8 @@ function ModifyVehicle(UTVehicle V)
 		LogObj.lVehicle = V.name;
 	}
 
-	if(fGR != none)
-		fGR.ModifyVehicle(V);
+	if(self.fGR != none)
+		self.fGR.ModifyVehicle(V);
 }
 
 function ModifyRook(UTHeroPawn R)
@@ -589,8 +603,8 @@ function ModifyRook(UTHeroPawn R)
 		LogObj.lRook = R.name;
 	}
 
-	if(fGR != none)
-		fGR.ModifyRook(R);
+	if(self.fGR != none)
+		self.fGR.ModifyRook(R);
 }
 
 ////

@@ -1,7 +1,7 @@
 //===================================================
 //	Class: UT_GR_Info
 //	Creation date: 12/12/2008 19:35
-//	Last updated: 22/11/2009 04:56
+//	Last updated: 05/03/2010 23:52
 //	Contributors: 00zX
 //---------------------------------------------------
 //	Attribution-Noncommercial-Share Alike 3.0 Unported
@@ -35,6 +35,15 @@ struct EnemyInfo extends PawnInfo
 	var int Damage;
 	var int ModifiedDamage;	//ConversionRatio>??
 	var class<DamageType> DamageType;
+
+	structdefaultproperties
+	{
+		bIsBot=false
+		bIsFriendly=false
+		Damage=0
+		ModifiedDamage=0
+		DamageType=class'DmgType_Suicided'
+	}
 };
 
 var UTMutator					GameExp;
@@ -76,7 +85,7 @@ function bool OverridePickupQuery(Pawn Other, class<Inventory> ItemClass, Actor 
 		return false;
 
 	if(Pickup != None && UTPawn(Other) != None)
-		if((FirstGR != None) && FirstGR.OverridePickupQuery(UTPawn(Other), ItemClass, Pickup))
+		if((FirstGR != None) && FirstGR.PickupQuery(UTPawn(Other), ItemClass, Pickup))
 			return true;
 	return false;
 }
