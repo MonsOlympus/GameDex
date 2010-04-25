@@ -16,10 +16,13 @@ enum VehicleTeam
 };
 
 /** The Vehicle class path */
-var config string ClassName;
+var config string VehicleClassPath;
+
+var config string OpposingClassPath;
+//ItemName
 
 /** The VehicleFactory class path */
-var config string FactoryClassName;
+var config string FactoryClassPath;
 
 /** optional flags separated by pipes | that can be parsed by the UI as arbitrary options (for example, to exclude weapons from some menus, etc) */
 var config string Flags;

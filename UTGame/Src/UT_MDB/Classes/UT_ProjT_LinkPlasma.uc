@@ -4,17 +4,7 @@ simulated function PostBeginPlay()
 {
 	Super.PostBeginPlay();
 
-	Speed = default.Speed * 1.3;
-//	MaxSpeed = default.MaxSpeed * 1.3;
+	Speed = default.Speed * class'UT_MDB_Turbo'.const.TurboSpeedP;
+	MaxSpeed = default.MaxSpeed * class'UT_MDB_Turbo'.const.TurboSpeedC;
 //	MomentumTransfer = default.MomentumTransfer / 1.3;
-}
-
-defaultproperties
-{
-	Begin Object Name=CollisionCylinder ObjName=CollisionCylinder Archetype=CylinderComponent'UTGame.Default__UTProj_LinkPlasma:CollisionCylinder'
-//		ObjectArchetype=CylinderComponent'UTGame.Default__UTProj_LinkPlasma:CollisionCylinder'
-	End Object
-	CylinderComponent=CollisionCylinder
-	Components(0)=CollisionCylinder
-	CollisionComponent=CollisionCylinder
 }

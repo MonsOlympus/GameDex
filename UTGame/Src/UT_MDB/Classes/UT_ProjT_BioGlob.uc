@@ -9,8 +9,8 @@ simulated function PostBeginPlay()
 
 	Speed = default.Speed * gSpeedMult;
 	MaxSpeed = default.MaxSpeed * gSpeedMult;
-	MomentumTransfer = default.MomentumTransfer / 1.3;
-	GloblingSpeed = default.GloblingSpeed * 1.3;
+	MomentumTransfer = default.MomentumTransfer / class'UT_MDB_Turbo'.const.TurboSpeedP;
+	GloblingSpeed = default.GloblingSpeed * class'UT_MDB_Turbo'.const.TurboSpeedP;
 
 	LifeSpan = default.LifeSpan / gLifeMult; //Could be longer
 }

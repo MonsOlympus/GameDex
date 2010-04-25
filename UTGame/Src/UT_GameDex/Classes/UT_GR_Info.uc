@@ -1,7 +1,7 @@
 //===================================================
 //	Class: UT_GR_Info
 //	Creation date: 12/12/2008 19:35
-//	Last updated: 05/03/2010 23:52
+//	Last updated: 19/04/2010 21:38
 //	Contributors: 00zX
 //---------------------------------------------------
 //	Attribution-Noncommercial-Share Alike 3.0 Unported
@@ -9,9 +9,7 @@
 //===================================================
 class UT_GR_Info extends GameRules;
 
-`include(MOD.uci)
-
-enum EnemyType
+enum PawnType
 {
 	ET_Infantry,
 	ET_Hero,
@@ -25,7 +23,7 @@ enum EnemyType
 struct PawnInfo
 {
 	var Pawn Pawn;
-	var EnemyType Type;
+	var PawnType Type;
 };
 
 struct EnemyInfo extends PawnInfo
@@ -46,186 +44,180 @@ struct EnemyInfo extends PawnInfo
 	}
 };
 
-var UTMutator					GameExp;
-var private UT_MDB_GameRules	FirstGR;
+var UT_MDB_GameExp				GameExp;
+var private UT_MDB_GameRules	BaseGameRules;
 
-/*event PreBeginPlay()
+/** wtf why am I grey? */
+function SetBaseGameRules()
 {
-//	`logdfunc('GameRules');
-
-	if(GD == None)
-		return;
-
-	if(GD.GRList != none)
-		FirstGR = UT_MDB_GameRules(GD.GRList.GetFirst());
-}*/
-
-/**wtf why am I grey?*/
-function SetFirstGR()
-{
-	if(UT_MDB_GameExp(GameExp) == None)
+	if(GameExp == None)
 		return;
 
 	`logd("GameRules Info Controller Initalized!",,'GameRulesInfo');
-	if(UT_MDB_GameExp(GameExp).GRList != none)
-		FirstGR = UT_MDB_GameRules(UT_MDB_GameExp(GameExp).GRList.GetFirst());
 
-	`logd("FirstGR:"$FirstGR,,'GameRulesInfo');
+	self.BaseGameRules = GameExp.GetBaseGameRules();
+	`logd("BaseGameRules:"$BaseGameRules,,'GameRulesInfo');
 }
 
+static function PawnType GetPawnType(Pawn Pawn)
+{
+	local PawnType PType;
+	
+	if(ClassIsChildOf(Pawn.class,class'UTPawn'))
+	{
+		//Added Rook 2.0
+		if(Pawn.IsA('UTHeroPawn'))
+		{
+			if(UTHeroPawn(Pawn).bIsHero && !UTHeroPawn(Pawn).bIsSuperHero)
+				PType = ET_Hero;
+			else if (!UTHeroPawn(Pawn).bIsHero && UTHeroPawn(Pawn).bIsSuperHero)
+				PType = ET_Rook;
+		}
+		else
+			PType = ET_Infantry;
+
+	}
+	//isA UTVehicle
+	else if(ClassIsChildOf(Pawn.class, class'UTVehicle'))
+	{
+		if(ClassIsChildOf(Pawn.class, class'UTVehicle_TrackTurretBase'))
+			PType = ET_Turret;
+		else
+			PType = ET_Vehicle;
+	}
+	
+	return PType;
+}
+
+//FIXME: Call next mutator that has Interface of this type in array, {hybrid list}
+function bool HandleRestartGame()
+{
+	if(GameExp == None || BaseGameRules == None)
+		return false;
+//	if((NextGameRules != None) && NextGameRules.HandleRestartGame())
+//		return true;
+	return false;
+}
+
+//FIXME: Call next mutator that has Interface of this type in array, {hybrid list}
+function bool CheckEndGame(PlayerReplicationInfo Winner, string Reason)
+{
+	if(GameExp == None || BaseGameRules == None)
+		return false;
+//	if(NextGameRules != None)
+//		return NextGameRules.CheckEndGame(Winner,Reason);
+	return true;
+}
+
+//FIXME: Call next mutator that has Interface of this type in array, {hybrid list}
 function bool OverridePickupQuery(Pawn Other, class<Inventory> ItemClass, Actor Pickup, out byte bAllowPickup)
 {
-	//Only Pawns have inventory managers?
-	//InvMgr = UTInventoryManager(Other.InvManager);
-
-	if(GameExp == None)
+	if(GameExp == None || BaseGameRules == None)
 		return false;
-
-	if(UT_MDB_GameExp(GameExp).GRList.isEmpty())
-		return false;
-
-	if(Pickup != None && UTPawn(Other) != None)
-		if((FirstGR != None) && FirstGR.PickupQuery(UTPawn(Other), ItemClass, Pickup))
-			return true;
+//	if(Pickup != None && UTPawn(Other) != None)
+//		if((self.BaseGameRules != None) && self.BaseGameRules.PickupQuery(UTPawn(Other), ItemClass, Pickup))
+//			return true;
 	return false;
+}
+
+//FIXME: Whats the Objective again? subclass of GameObjective required to be passed for full override/modification
+function ScoreObjective(PlayerReplicationInfo Scorer, Int Score)
+{
+	local UT_MDB_GameRules GR;
+
+	if(GameExp == None || self.BaseGameRules == None)
+		return;
+
+	for(GR = self.BaseGameRules; GR != None; GR = GameExp.GetNextGameRules(GR))
+	{
+		if(MDIB_GR_ModifyScoreObjective(GR) != None)
+			MDIB_GR_ModifyScoreObjective(GR).ModifyScoreObjective(Scorer, Score);
+
+//		if(MDIB_GR_NotifyScoreObjective(GR) != None)
+//			MDIB_GR_NotifyScoreObjective(GR).NotifyScoreObjective(Scorer);
+	}
+}
+
+function ScoreKill(Controller Killer, Controller Killed)
+{
+	local UT_MDB_GameRules GR;
+
+	if(GameExp == None || self.BaseGameRules == None)
+		return;
+
+	for(GR = self.BaseGameRules; GR != None; GR = GameExp.GetNextGameRules(GR))
+	{
+		if(MDIB_GR_ModifyScoreKill(GR) != None)
+			MDIB_GR_ModifyScoreKill(GR).ModifyScoreKill(Killer, Killed);
+
+		if(MDIB_GR_NotifyScoreKill(GR) != None)
+			MDIB_GR_NotifyScoreKill(GR).NotifyScoreKill(Killer);
+	}
 }
 
 //Cumulative
 //TODO: SUPPORT OTHER MUTS, USE THE LINKED LIST ONTOP OF OBJECT LIST!!~
 function NetDamage(int OriginalDamage, out int Damage, pawn injured, Controller instigatedBy, vector HitLocation, out vector Momentum, class<DamageType> DamageType)
 {
-	local EnemyInfo Enemy;			///New Branch
-//	local EnemyInfo Injured;
-//	local UT_MDB_GameRules fGR;
+	local EnemyInfo Enemy;
+	local UT_MDB_GameRules GR;
 
-	///	InjuredPRI = injured.PlayerReplicationInfo;
-//	`logd("Master: NetDamage",,'GameRules');
-
-//	if (injured == None || instigatedBy == None || injured.Controller == None || instigatedBy.Controller == None)
-//		return Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-
-	if(GameExp == None)
+	if(GameExp == None || self.BaseGameRules == None)
 		return;
 
-	if(UT_MDB_GameExp(GameExp).GRList.isEmpty())
-		return;
-
-//	`logd("Master: GameData: "$GD,,'GameRules');
-
-	if(!WorldInfo.Game.IsInState('MatchInProgress') ||
-		(injured == None && instigatedBy == None))
+	if(!WorldInfo.Game.IsInState('MatchInProgress') || (injured == None && instigatedBy == None))
 	{
 		Damage = 0;
 		return;
 	}
-
-	if(UT_MDB_GameExp(GameExp).GRList.isEmpty())
-		Super.NetDamage(OriginalDamage, Damage, injured, instigatedBy, HitLocation, Momentum, DamageType);
-
-//	fGR = UT_MDB_GameRules(GD.GRList.GetFirst());
-//	`logd("Master: ObjList: FirstRules: "$PathName(fGR),,'GameRules');
-
+	
+	//GameInfo.ReduceDamage // then check if carrying items that can reduce damage
+//	if((damage > 0) && (injured.InvManager != None))
+//		injured.InvManager.ModifyDamage(Damage, instigatedBy, HitLocation, Momentum, DamageType);
+	
 	if(instigatedBy != None && instigatedBy.Pawn != None)
 	{
-		//`logd("NetDamage::UT_GR_Info:(instigatedBy != None && instigatedBy.Pawn != None)",,'GameRulesInfo');
 		Enemy.Pawn = InstigatedBy.Pawn;
 		Enemy.Damage = OriginalDamage;
+		Enemy.Type = GetPawnType(Enemy.Pawn);
 
-		if(ClassIsChildOf(Enemy.Pawn.class,class'UTPawn'))
-		{
-			//`logd("NetDamage::UT_GR_Info:(ClassIsChildOf(Enemy.Pawn.class,class'UTPawn'))",,'GameRulesInfo');
-			//Added Rook 2.0
-			if(Enemy.Pawn.IsA('UTHeroPawn'))
-			{
-				if(UTHeroPawn(InstigatedBy.Pawn).bIsHero && !UTHeroPawn(InstigatedBy.Pawn).bIsSuperHero)
-					Enemy.Type=ET_Hero;//Enemy.Type=ET_Rook;
-				else if (!UTHeroPawn(InstigatedBy.Pawn).bIsHero && UTHeroPawn(InstigatedBy.Pawn).bIsSuperHero)
-					Enemy.Type=ET_Rook;//Enemy.Type=ET_Knight;
-			}
-			else
-				Enemy.Type=ET_Infantry;
-
-		}
-		else if(ClassIsChildOf(InstigatedBy.Pawn.class, class'UTVehicle'))
-		{
-			if(ClassIsChildOf(InstigatedBy.Pawn.class, class'UTVehicle_TrackTurretBase'))
-				Enemy.Type=ET_Turret;
-			else
-				Enemy.Type=ET_Vehicle;
-		}
-
-		//`logd("Enemy is of Type: "$Enemy.Type,,'GameRulesInfo');
+		//!include {static function PawnType GetPawnType(Pawn Pawn)}
 
 		//Enemy isA UTBot
 		if(UTBot(instigatedBy) != None && UTBot(injured.controller) == None &&
 			UTBot(injured.controller) != UTBot(instigatedBy))
 				Enemy.bIsBot = true;
 
-		//Self-Damage
-		if(Enemy.Pawn == injured)
-			Damage = FirstGR.SelfDamage(Enemy);//Damage = FirstGR.SelfDamage(Enemy);
-
-		//Damage From EnemyPawn
-		else if(injured != instigatedBy)
+		for(GR = self.BaseGameRules; GR != None; GR = GameExp.GetNextGameRules(GR))
 		{
-			//Team Damage
-			if(WorldInfo.Game.bTeamGame)
-			{
-				if(instigatedBy.GetTeamNum() != injured.GetTeamNum())
-					Damage = FirstGR.DamageTaken(Enemy,Injured);//Damage = FirstGR.DamageTaken(Enemy,Injured);
-				else
-					Enemy.bIsFriendly = true;
-			}
-			//FFA Damage
-			else
-				Damage = FirstGR.DamageTaken(Enemy,Injured);//Damage = FirstGR.DamageTaken(Enemy,Injured);
+			//Self-Damage
+			if(Enemy.Pawn == injured)
+				if(MDIB_GR_ModifySelfDamage(GR) != None)
+					MDIB_GR_ModifySelfDamage(GR).ModifySelfDamage(Enemy);
+			//if(Enemy.Pawn == injured)
+			//	Damage = self.BaseGameRules.ModifySelfDamage(Enemy);
 
-			//if((EnemyPRI != None) && (injured.PlayerReplicationInfo != None) &&
-			//	((EnemyPRI.Team == None) || (EnemyPRI.Team != injured.PlayerReplicationInfo.Team)))
+			//Damage From EnemyPawn
+			else if(injured != instigatedBy)
+			{
+				//Team Damage
+				if(WorldInfo.Game.bTeamGame)
+				{
+					if(instigatedBy.GetTeamNum() != injured.GetTeamNum())
+					{
+						if(MDIB_GR_ModifyDamageTaken(GR) != None)
+							MDIB_GR_ModifyDamageTaken(GR).ModifyDamageTaken(Enemy, Injured);
+						//Damage = self.BaseGameRules.ModifyDamageTaken(Enemy, Injured);
+					}
+					else
+						Enemy.bIsFriendly = true;
+				}
+				//FFA Damage
+				else
+					if(MDIB_GR_ModifyDamageTaken(GR) != None)
+						MDIB_GR_ModifyDamageTaken(GR).ModifyDamageTaken(Enemy, Injured);
+					//Damage = self.BaseGameRules.ModifyDamageTaken(Enemy, Injured);
+			}
 		}
 	}
 }
-
-//TODO: REMAP TO NEW GR OBJECTS!
-/*
-function NavigationPoint FindPlayerStart( Controller Player, optional byte InTeam, optional string incomingName )
-{
-	if ( NextGameRules != None )
-		return NextGameRules.FindPlayerStart(Player,InTeam,incomingName);
-
-	return None;
-}
-
-function bool HandleRestartGame()
-{
-	if ( (NextGameRules != None) && NextGameRules.HandleRestartGame() )
-		return true;
-	return false;
-}
-
-function bool CheckEndGame(PlayerReplicationInfo Winner, string Reason)
-{
-	if ( NextGameRules != None )
-		return NextGameRules.CheckEndGame(Winner,Reason);
-
-	return true;
-}
-
-function bool PreventDeath(Pawn Killed, Controller Killer, class<DamageType> damageType, vector HitLocation)
-{
-	if ( (NextGameRules != None) && NextGameRules.PreventDeath(Killed,Killer, damageType,HitLocation) )
-		return true;
-	return false;
-}
-
-function ScoreObjective(PlayerReplicationInfo Scorer, Int Score)
-{
-	if ( NextGameRules != None )
-		NextGameRules.ScoreObjective(Scorer,Score);
-}
-
-function ScoreKill(Controller Killer, Controller Killed)
-{
-	if ( NextGameRules != None )
-		NextGameRules.ScoreKill(Killer,Killed);
-}*/

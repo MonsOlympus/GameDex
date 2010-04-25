@@ -1,7 +1,11 @@
 //===================================================
 //	Class: UTInfo_DodgeJump
 //	Creation date: 27/05/2008 21:02
+//	Last updated: 21/03/2010 20:37
 //	Contributors: 00zX
+//---------------------------------------------------
+//	Attribution-Noncommercial-Share Alike 3.0 Unported
+//	http://creativecommons.org/licenses/by-nc-sa/3.0/
 //===================================================
 class UT_MDI_DodgeJump extends UT_MDI;
 
@@ -13,6 +17,9 @@ Replication
 		PC;
 }
 
+//TODO: Add delay in WorldInfo.TimeSeconds to second dodges
+//		Currently dodges can be performed anytime without delay,
+//		provided player is not in Active state meanin they havent touched the ground yet.
 Simulated Function Tick(float dt)
 {
 	local UTPawn P;
@@ -47,6 +54,8 @@ Simulated Function Tick(float dt)
 
 defaultproperties
 {
+	bTickable=True
+
 	RemoteRole=ROLE_SimulatedProxy
 	bAlwaysRelevant=True
 }

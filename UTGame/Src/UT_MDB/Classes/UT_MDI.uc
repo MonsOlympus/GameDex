@@ -1,9 +1,26 @@
 //===================================================
 //	Class: UT_MDI	//Buffer
 //	Creation date:	22/06/2008 10:11
-//	Contributors:	00zX
+//	Last updated: 15/03/2010 21:40
+//	Contributors: 00zX
+//---------------------------------------------------
+//	Attribution-Noncommercial-Share Alike 3.0 Unported
+//	http://creativecommons.org/licenses/by-nc-sa/3.0/
 //===================================================
 class UT_MDI extends Info;
+
+const DestroyTime = 25;	//10
+const UpdateRate = 0.01;
+
+//TODO: This might be called at different times, such as
+//*when a player picks up an item		|Last Duration of Item (InventoryManager.HasItem)
+//*when a player first spawns 			|Last Until Death (Destroy)
+//										|Last Entire Match (ModifyPlayer)
+
+var Inventory LinkedTo;
+var bool bDestroyWithOwner;
+var bool bInitOnMapStart;
+var bool bTickable;
 
 /* list of currently active timers*/
 /*
@@ -14,6 +31,20 @@ struct native TimerData{
 	var Object			TimerObj;
 };var const array<TimerData>			Timers;
 */
+simulated event PostBeginPlay()
+{
+	if(Owner == None)
+		Destroy();
+
+	if(bTickable)
+		Enable('tick');
+}
+
+simulated event Tick(float DeltaTime)
+{
+	if(Owner == None ||	 !bTickable)
+		Disable('tick');
+}
 
 //var const bool bNetOwner;         // Player owns this actor.
 

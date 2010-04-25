@@ -4,25 +4,11 @@ simulated function PostBeginPlay()
 {
 	Super.PostBeginPlay();
 
-	Speed = default.Speed * 1.3;
-	MaxSpeed = default.MaxSpeed * 1.3;
-	MomentumTransfer = default.MomentumTransfer / 1.3;
+	Speed = default.Speed * class'UT_MDB_Turbo'.const.TurboSpeedP;
+	MaxSpeed = default.MaxSpeed * class'UT_MDB_Turbo'.const.TurboSpeedP;
+	MomentumTransfer = default.MomentumTransfer / class'UT_MDB_Turbo'.const.TurboSpeedP;
 
-	LifeSpan = default.LifeSpan / 1.3; //Could be longer
-	RestTime = default.RestTime / 1.3;
-	DripTime = default.DripTime / 1.3;
-}
-
-defaultproperties
-{
-	Begin Object Name=ProjectileMesh ObjName=ProjectileMesh Archetype=StaticMeshComponent'UTGameContent.Default__UTProj_BioShot:ProjectileMesh'
-//		ObjectArchetype=StaticMeshComponent'UTGameContent.Default__UTProj_BioShot:ProjectileMesh'
-	End Object
-	Begin Object Name=CollisionCylinder ObjName=CollisionCylinder Archetype=CylinderComponent'UTGame.Default__UTProj_Rocket:CollisionCylinder'
-//		ObjectArchetype=CylinderComponent'UTGame.Default__UTProj_Rocket:CollisionCylinder'
-	End Object
-	CylinderComponent=CollisionCylinder
-	Components(0)=CollisionCylinder
-	Components(1)=ProjectileMesh
-	CollisionComponent=CollisionCylinder
+	LifeSpan = default.LifeSpan / class'UT_MDB_Turbo'.const.TurboSpeedP; //Could be longer
+	RestTime = default.RestTime / class'UT_MDB_Turbo'.const.TurboSpeedP;
+	DripTime = default.DripTime / class'UT_MDB_Turbo'.const.TurboSpeedP;
 }

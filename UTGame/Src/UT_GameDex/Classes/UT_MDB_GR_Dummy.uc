@@ -12,3 +12,6 @@
 class UT_MDB_GR_Dummy extends UT_MDB_GameRules;
 
 //Can add new modules wrapped through this object??
+
+//Provider
+//List of possible gamerules to add (only rules that havent been added yet)
